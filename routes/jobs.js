@@ -21,9 +21,9 @@ router.post('/add', (req, res) => {
 
 });
 
-//Check Router
+//Health Check Router
 router.get('/hc', (req, res) => {
-    res.send("OK!");
+    res.send("Health Check - OK!");
 });
 
 module.exports = router;
