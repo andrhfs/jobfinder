@@ -1,16 +1,28 @@
-const express       = require('express');
-const app           = express();
-const db            = require('./db/connection');
-const bodyParser    = require('body-parser');
+const express    = require('express');
+const { engine } = require('express-handlebars');
+const path       = require('path');
+const db         = require('./db/connection');
+const bodyParser = require('body-parser');
+const Job        = require('./models/Job');
 
-const PORT = 3000;
+const app        = express();
+const PORT       = 3000;
 
 app.listen(PORT, function() {
     console.log(`Server running. PORT: ${PORT}`);
 });
 
-//body parser
-app.use(bodyParser.urlencoded({extended: false}));
+// body parser
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// handle bars
+
+app.engine('handlebars', engine({defaultLayout: "main"}));
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+// static folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 //db connection
 db
@@ -24,8 +36,15 @@ db
 
 //routes
 app.get('/', (req, res) => {
-    res.send("OK!");
+
+    Job.findAll({order: [
+        ['createdAt', 'DESC']
+    ]})
+    .then(jobs => {
+        res.render('index', {jobs});
+    });
+
 });
 
-//jobs routes
+// jobs routes
 app.use('/jobs', require('./routes/jobs'));
